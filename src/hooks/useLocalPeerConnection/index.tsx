@@ -1,14 +1,13 @@
 /* eslint-disable prettier/prettier */
-import { createContext, useContext } from 'react'
+import useWebRTCAdapterState from 'hooks/useWebRTCAdapterState'
+
 
 
 function useLocalPeerConnection () {
-  const peerConnection = useContext(PeerLocalContext)
+  const { localPeerConnection } = useWebRTCAdapterState()
 
-  return peerConnection
+  return localPeerConnection
 }
-
-export const PeerLocalContext = createContext(new RTCPeerConnection())
 
 
 export default useLocalPeerConnection
