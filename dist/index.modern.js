@@ -1,18 +1,28 @@
-import React, { useContext, createContext, useState, useEffect, memo } from 'react';
+import React, { createContext, useContext, useState, useEffect, memo, useMemo } from 'react';
+
+const RTC = createContext({
+  remotePeerConnection: new RTCPeerConnection(),
+  localPeerConnection: new RTCPeerConnection()
+});
+
+function useWebRTCAdapterState() {
+  const state = useContext(RTC);
+  return state;
+}
 
 function useLocalPeerConnection() {
-  const peerConnection = useContext(PeerLocalContext);
-  return peerConnection;
+  const {
+    localPeerConnection
+  } = useWebRTCAdapterState();
+  return localPeerConnection;
 }
-
-const PeerLocalContext = createContext(new RTCPeerConnection());
 
 function useRemotePeerConnection() {
-  const peerConnection = useContext(PeerRemoteContext);
-  return peerConnection;
+  const {
+    remotePeerConnection
+  } = useWebRTCAdapterState();
+  return remotePeerConnection;
 }
-
-const PeerRemoteContext = createContext(new RTCPeerConnection());
 
 function useMediaDevices(constraints) {
   const [localMediaStream, setLocalMediaStream] = useState(null);
@@ -73,11 +83,31 @@ const WebRTCAdapter = ({
 }) => {
   const [localPeerConnection] = useState(new RTCPeerConnection(localPeerConfiguration));
   const [remotePeerConnection] = useState(new RTCPeerConnection(remotePeerConfiguration));
-  return React.createElement(Adapter, null, React.createElement(PeerLocalContext.Provider, {
-    value: localPeerConnection
-  }, React.createElement(PeerRemoteContext.Provider, {
-    value: remotePeerConnection
-  }, children)));
+  const [localMediaStream, setLocalMediaStream] = useState(null);
+
+  async function getUserMedia(constraints) {
+    var _navigator, _navigator$mediaDevic;
+
+    if ((_navigator = navigator) !== null && _navigator !== void 0 && (_navigator$mediaDevic = _navigator.mediaDevices) !== null && _navigator$mediaDevic !== void 0 && _navigator$mediaDevic.getUserMedia) {
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      setLocalMediaStream(stream);
+      return stream;
+    }
+
+    return null;
+  }
+
+  const memo = useMemo(() => {
+    return {
+      localPeerConnection,
+      remotePeerConnection,
+      localMediaStream,
+      getUserMedia
+    };
+  }, []);
+  return React.createElement(Adapter, null, React.createElement(RTC.Provider, {
+    value: memo
+  }, children));
 };
 
 var index = memo(WebRTCAdapter);
@@ -103,9 +133,23 @@ const RTCPeerConnectionHandler = props => {
     }
   }
 
+  function handleConnectionChange(event) {
+    console.trace(`${getPeerName(event.target)} ICE State: null`);
+
+    if (props.onConnectionStateChange) {
+      props.onConnectionStateChange();
+    }
+  }
+
+  function getPeerName(peerConnection) {
+    return peerConnection === localPeerConnection ? 'localPeerConnection' : 'remotePeerConnection';
+  }
+
   React.useEffect(() => {
     localPeerConnection.addEventListener('icecandidate', handleConnectionSuccess);
+    localPeerConnection.addEventListener('iceconnectionstatechange', handleConnectionChange);
     remotePeerConnection.addEventListener('icecandidate', handleConnectionSuccess);
+    remotePeerConnection.addEventListener('iceconnectionstatechange', handleConnectionChange);
   }, []);
 
   const getPeerConnectionHandler = peerConnection => {
