@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import React from 'react'
 
+import useLocalMedia from 'hooks/useLocalMedia'
 import useLocalPeerConnection from 'hooks/useLocalPeerConnection'
 import useRemotePeerConnection from 'hooks/useRemotePeerConnection'
 
@@ -14,6 +15,8 @@ const RTCPeerConnectionHandler: React.FunctionComponent<Props> = props => {
   const localPeerConnection = useLocalPeerConnection()
 
   const remotePeerConnection = useRemotePeerConnection()
+
+  const { stream } = useLocalMedia()
 
   async function handleConnectionSuccess(event: RTCPeerConnectionIceEvent) {
     const peerConnection = event?.target
@@ -67,7 +70,16 @@ const RTCPeerConnectionHandler: React.FunctionComponent<Props> = props => {
       'iceconnectionstatechange',
       handleConnectionChange
     )
-  }, [])
+
+    if (stream) {
+      const audioTrack = stream.getAudioTracks()[0]
+
+      const videoTrack = stream.getVideoTracks()[0]
+
+      localPeerConnection.addTrack(audioTrack)
+      localPeerConnection.addTrack(videoTrack)
+    }
+  }, [stream])
 
   const getPeerConnectionHandler = (peerConnection: EventTarget | null) => {
     return peerConnection === localPeerConnection
