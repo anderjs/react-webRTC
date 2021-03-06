@@ -6,6 +6,7 @@ export interface WebRTCAdapterContext {
   localPeerConnection: RTCPeerConnection
   localMediaStream?: MediaStream | null
   getUserMedia?: (constraints: MediaStreamConstraints) => Promise<MediaStream | null>
+  setUserMedia?: (mediaStream: MediaStream) => Promise<void>
 }
 
 const RTC = createContext<WebRTCAdapterContext>({
