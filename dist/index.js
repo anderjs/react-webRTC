@@ -74,6 +74,13 @@ function useRTCIceCandidate() {
   };
 }
 
+function useLocalMedia() {
+  var _useWebRTCAdapterStat = useWebRTCAdapterState(),
+      localMediaStream = _useWebRTCAdapterStat.localMediaStream;
+
+  return localMediaStream;
+}
+
 var Adapter = function Adapter(_ref) {
   var children = _ref.children;
   React__default.useEffect(function () {
@@ -218,6 +225,7 @@ var RTCPeerConnectionHandler = function RTCPeerConnectionHandler(props) {
 exports.Adapter = Adapter;
 exports.RTCPeerConnectionHandler = RTCPeerConnectionHandler;
 exports.WebRTCAdapter = index;
+exports.useLocalMedia = useLocalMedia;
 exports.useLocalPeerConnection = useLocalPeerConnection;
 exports.useMediaDevices = useMediaDevices;
 exports.useRTCIceCandidate = useRTCIceCandidate;

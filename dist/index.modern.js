@@ -65,6 +65,13 @@ function useRTCIceCandidate() {
   };
 }
 
+function useLocalMedia() {
+  const {
+    localMediaStream
+  } = useWebRTCAdapterState();
+  return localMediaStream;
+}
+
 const Adapter = ({
   children
 }) => {
@@ -159,5 +166,5 @@ const RTCPeerConnectionHandler = props => {
   return React.createElement(React.Fragment, null, props.children);
 };
 
-export { Adapter, RTCPeerConnectionHandler, index as WebRTCAdapter, useLocalPeerConnection, useMediaDevices, useRTCIceCandidate, useRemotePeerConnection };
+export { Adapter, RTCPeerConnectionHandler, index as WebRTCAdapter, useLocalMedia, useLocalPeerConnection, useMediaDevices, useRTCIceCandidate, useRemotePeerConnection };
 //# sourceMappingURL=index.modern.js.map
