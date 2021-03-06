@@ -2,7 +2,7 @@
   "name": "react-webrtc-stream",
   "version": "1.0.0",
   "description": "Made with create-react-library",
-  "author": "anderjs",
+  "author": "exiledjs",
   "license": "MIT",
   "repository": "anderjs/react-webrtc-stream",
   "main": "dist/index.js",
