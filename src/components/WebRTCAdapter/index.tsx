@@ -38,14 +38,19 @@ const WebRTCAdapter: React.FunctionComponent<Props> = ({
     return null
   }
 
+  async function setUserMedia (mediaStream: MediaStream) {
+    setLocalMediaStream(mediaStream)
+  }
+
   const memo = useMemo(() => {
     return {
       localPeerConnection,
       remotePeerConnection,
       localMediaStream,
-      getUserMedia
+      getUserMedia,
+      setUserMedia,
     }
-  }, [])
+  }, [localMediaStream])
 
   return (
     <Adapter>
