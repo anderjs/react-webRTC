@@ -1,10 +1,10 @@
 /* eslint-disable prettier/prettier */
-import React, { memo, useState } from 'react'
+import React, { memo, useState, useMemo } from 'react'
 
-import { PeerLocalContext } from 'hooks/useLocalPeerConnection'
-import { PeerRemoteContext } from 'hooks/useRemotePeerConnection'
 
 import Adapter from 'components/Adapter'
+
+import RTC from 'context'
 
 interface Props {
   children: React.ReactNode
@@ -25,13 +25,33 @@ const WebRTCAdapter: React.FunctionComponent<Props> = ({
     new RTCPeerConnection(remotePeerConfiguration)
   )
 
+  const [localMediaStream, setLocalMediaStream] = useState<MediaStream | null>(null)
+
+  async function getUserMedia (constraints: MediaStreamConstraints) {
+    if (navigator?.mediaDevices?.getUserMedia) {
+      const stream = await navigator.mediaDevices.getUserMedia(constraints)
+
+      setLocalMediaStream(stream)
+
+      return stream
+    }
+    return null
+  }
+
+  const memo = useMemo(() => {
+    return {
+      localPeerConnection,
+      remotePeerConnection,
+      localMediaStream,
+      getUserMedia
+    }
+  }, [])
+
   return (
     <Adapter>
-      <PeerLocalContext.Provider value={localPeerConnection}>
-        <PeerRemoteContext.Provider value={remotePeerConnection}>
-          {children}
-        </PeerRemoteContext.Provider>
-      </PeerLocalContext.Provider>
+      <RTC.Provider value={memo}>
+        {children}
+      </RTC.Provider>
     </Adapter>
   )
 }
