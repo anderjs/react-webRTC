@@ -2,9 +2,12 @@
 import useWebRTCAdapterState from 'hooks/useWebRTCAdapterState'
 
 function useLocalMedia () {
-  const { localMediaStream } = useWebRTCAdapterState()
+  const { localMediaStream: stream, setUserMedia: setStream } = useWebRTCAdapterState()
 
-  return localMediaStream
+  return {
+    stream,
+    setStream
+  }
 }
 
 export default useLocalMedia
