@@ -1,14 +1,12 @@
 /* eslint-disable prettier/prettier */
-import { createContext, useContext } from 'react'
+import useWebRTCAdapterState from 'hooks/useWebRTCAdapterState'
 
 
 function useRemotePeerConnection () {
-  const peerConnection = useContext(PeerRemoteContext)
+  const { remotePeerConnection } = useWebRTCAdapterState()
 
-  return peerConnection
+  return remotePeerConnection
 }
-
-export const PeerRemoteContext = createContext(new RTCPeerConnection())
 
 
 export default useRemotePeerConnection
