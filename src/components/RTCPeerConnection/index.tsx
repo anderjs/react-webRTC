@@ -7,6 +7,7 @@ import useRemotePeerConnection from 'hooks/useRemotePeerConnection'
 interface Props {
   onSuccessHandleCandidate?: () => void
   onErrorHandleCanidate?: () => void
+  onConnectionStateChange?: () => void
 }
 
 const RTCPeerConnectionHandler: React.FunctionComponent<Props> = props => {
@@ -34,10 +35,38 @@ const RTCPeerConnectionHandler: React.FunctionComponent<Props> = props => {
     }
   }
 
-  React.useEffect(() => {
-    localPeerConnection.addEventListener('icecandidate', handleConnectionSuccess)
+  function handleConnectionChange(event: RTCPeerConnectionIceEvent) {
+    console.trace(`${getPeerName(event.target)} ICE State: null`)
 
-    remotePeerConnection.addEventListener('icecandidate', handleConnectionSuccess)
+    if (props.onConnectionStateChange) {
+      props.onConnectionStateChange()
+    }
+  }
+
+  function getPeerName(peerConnection: EventTarget | null): string {
+    return peerConnection === localPeerConnection
+      ? 'localPeerConnection'
+      : 'remotePeerConnection'
+  }
+
+  React.useEffect(() => {
+    localPeerConnection.addEventListener(
+      'icecandidate',
+      handleConnectionSuccess
+    )
+    localPeerConnection.addEventListener(
+      'iceconnectionstatechange',
+      handleConnectionChange
+    )
+
+    remotePeerConnection.addEventListener(
+      'icecandidate',
+      handleConnectionSuccess
+    )
+    remotePeerConnection.addEventListener(
+      'iceconnectionstatechange',
+      handleConnectionChange
+    )
   }, [])
 
   const getPeerConnectionHandler = (peerConnection: EventTarget | null) => {
