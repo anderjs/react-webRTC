@@ -3,12 +3,12 @@ import { createContext, useContext } from 'react'
 
 
 function useLocalPeerConnection () {
-  const peerConnection = useContext(PeerContext)
+  const peerConnection = useContext(PeerLocalContext)
 
   return peerConnection
 }
 
-export const PeerContext = createContext(new RTCPeerConnection())
+export const PeerLocalContext = createContext(new RTCPeerConnection())
 
 
 export default useLocalPeerConnection
