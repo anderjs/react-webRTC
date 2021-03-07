@@ -15,11 +15,13 @@ interface Props {
 }
 
 interface WebRTCAdapterContext {
+  dataChannel: RTCDataChannel
+  setDataChannel: (channel: RTCDataChannel) => void
   remotePeerConnection: RTCPeerConnection
   localPeerConnection: RTCPeerConnection
-  getUserMedia?: (
-    constraints: MediaStreamConstraints
-  ) => Promise<MediaStream | null>
+  localConnection: RTCPeerConnection
+  remoteConnection: RTCPeerConnection
+  getUserMedia?: (constraints: MediaStreamConstraints) => Promise<MediaStream | null>
   setUserMedia?: (mediaStream: MediaStream) => Promise<void>
   connect: (media: MediaStreamConstraints) => Promise<void>
 }
@@ -36,6 +38,16 @@ const WebRTCAdapter: React.FunctionComponent<Props> = ({
   const [remotePeerConnection] = useState(
     new RTCPeerConnection(remotePeerConfiguration)
   )
+
+  const [localConnection] = useState(
+    new RTCPeerConnection()
+  )
+
+  const [remoteConnection] = useState(
+    new RTCPeerConnection()
+  )
+
+  const [dataChannel, setDataChannel] = useState<RTCDataChannel>()
 
   const [localMediaStream, setLocalMediaStream] = useState<MediaStream | null>(
     null
@@ -238,6 +250,12 @@ const WebRTCAdapter: React.FunctionComponent<Props> = ({
 
   const memo = useMemo(() => {
     return {
+      dataChannel,
+      setDataChannel: (channel: RTCDataChannel) => {
+        setDataChannel(channel)
+      },
+      localConnection,
+      remoteConnection,
       localPeerConnection,
       remotePeerConnection,
       getUserMedia,
