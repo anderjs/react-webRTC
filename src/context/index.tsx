@@ -14,7 +14,7 @@ export interface WebRTCAdapterContext {
 }
 
 const RTC = createContext<WebRTCAdapterContext>({
-  dataChannel: new RTCDataChannel(),
+  dataChannel: new RTCPeerConnection().createDataChannel('TEST'),
   setDataChannel: function () {},
   remotePeerConnection: new RTCPeerConnection(),
   localPeerConnection: new RTCPeerConnection(),
