@@ -22,7 +22,7 @@ npm install --save react-webrtc-stream
 
     const videoRef = useRef(null)
 
-    const { connect} = useConnectionHandler()
+    const { connect } = useConnectionHandler()
 
     useEffect(() => {
       connect({
