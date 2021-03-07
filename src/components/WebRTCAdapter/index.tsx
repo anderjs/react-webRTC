@@ -130,10 +130,7 @@ const WebRTCAdapter: React.FunctionComponent<Props> = ({
       localPeerConnection.addTrack(localMedia.getTracks()[0])
 
       const offer = await localPeerConnection.createOffer(
-        offerOptions ?? {
-          offerToReceiveAudio: true,
-          offerToReceiveVideo: true
-        }
+        offerOptions
       )
 
       logTrace(`
@@ -269,7 +266,7 @@ const WebRTCAdapter: React.FunctionComponent<Props> = ({
       localMediaStream,
       remoteMediaStream
     }),
-    []
+    [localMediaStream, remoteMediaStream]
   )
 
   return (
