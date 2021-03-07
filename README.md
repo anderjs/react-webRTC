@@ -13,16 +13,33 @@ npm install --save react-webrtc-stream
 ## Usage
 
 ```tsx
-import React, { Component } from 'react'
+  import React, { useEffect, useRef } from 'react'
 
-import MyComponent from 'react-webrtc-stream'
-import 'react-webrtc-stream/dist/index.css'
+  import { useConnectionHandler } from 'react-webrtc-stream'
 
-class Example extends Component {
-  render() {
-    return <MyComponent />
+  const App = () => {
+    const audioRef = useRef(null)
+
+    const videoRef = useRef(null)
+
+    const { connect} = useConnectionHandler()
+
+    useEffect(() => {
+      connect({
+        audio: true,
+        video: true,
+      })
+    }, [])
+
+    return (
+      <React.Fragment>
+        <audio autoPlay ref={audioRef} />
+        <video autoPlay ref={videoRef} />
+      </React.Fragment>
+    )
   }
-}
+
+  export default App
 ```
 
 ## License
