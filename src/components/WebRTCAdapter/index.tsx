@@ -41,7 +41,9 @@ const WebRTCAdapter: React.FunctionComponent<Props> = ({
     null
   )
 
-  const [remoteMediaStream, setRemoteMediaStream] = useState<readonly MediaStream []>([])
+  const [remoteMediaStream, setRemoteMediaStream] = useState<
+    readonly MediaStream[]
+  >([])
 
   async function getUserMedia(constraints: MediaStreamConstraints) {
     if (navigator?.mediaDevices?.getUserMedia) {
@@ -64,7 +66,10 @@ const WebRTCAdapter: React.FunctionComponent<Props> = ({
    * It also establishes the ICECandidate, and RTCPeerConnection protocols
    * to achieve a connection between both browsers.
    */
-  async function connect(constraints: MediaStreamConstraints) {
+  async function connect(
+    constraints: MediaStreamConstraints,
+    offerOptions?: RTCOfferOptions
+  ) {
     try {
       const localMedia = await getUserMedia(constraints)
 
@@ -84,34 +89,98 @@ const WebRTCAdapter: React.FunctionComponent<Props> = ({
        * @description
        * Local Peer Connection Events
        */
-      localPeerConnection.addEventListener('icecandidate', handleRTCIceConnection)
+      localPeerConnection.addEventListener(
+        'icecandidate',
+        handleRTCIceConnection
+      )
 
-      localPeerConnection.addEventListener('iceconnectionstatechange', handleConnectionChange)
+      localPeerConnection.addEventListener(
+        'iceconnectionstatechange',
+        handleConnectionChange
+      )
 
       /**
        * @description
        * Remote Peer Connection Events
        */
-      remotePeerConnection.addEventListener('icecandidate', handleRTCIceConnection)
+      remotePeerConnection.addEventListener(
+        'icecandidate',
+        handleRTCIceConnection
+      )
 
-      remotePeerConnection.addEventListener('iceconnectionstatechange', handleConnectionChange)
+      remotePeerConnection.addEventListener(
+        'iceconnectionstatechange',
+        handleConnectionChange
+      )
 
       remotePeerConnection.addEventListener('track', handleRemoteStream)
+
+      localPeerConnection.addTrack(localMedia.getTracks()[0])
+
+      const offer = await localPeerConnection.createOffer(
+        offerOptions ?? {
+          offerToReceiveAudio: true,
+          offerToReceiveVideo: true
+        }
+      )
+
+      logTrace(`
+        Offer from localPeerConnection: \n ${offer.sdp}
+        localPeerConnection setLocalDescription start
+        `)
+
+      await localPeerConnection.setLocalDescription(offer)
+
+      logTrace(`
+        Description from ${getOutgoingPeerConnection(
+          localPeerConnection
+        )} successfull
+      `)
+
+      await remotePeerConnection.setRemoteDescription(offer)
+
+      logTrace(`
+        Description from ${getOutgoingPeerConnection(
+          remotePeerConnection
+        )} successfull
+      `)
+
+      const answer = await remotePeerConnection.createAnswer()
+
+      logTrace(`
+        Offer from localPeerConnection: \n ${answer.sdp}
+        localPeerConnection setLocalDescription start
+        `)
+
+      await remotePeerConnection.setLocalDescription(answer)
+
+      logTrace(`
+      Description from ${getOutgoingPeerConnection(
+        localPeerConnection
+      )} successfull
+    `)
+
+      await localPeerConnection.setRemoteDescription(answer)
+
+      logTrace(`
+      Description from ${getOutgoingPeerConnection(
+        remotePeerConnection
+      )} successfull
+    `)
     } catch (err) {
       logTrace(err.name)
     }
   }
 
   /**
-   * The WebRTC API interface `RTCTrackEvent` represents the `track` event, 
-   * which is sent when a new `MediaStreamTrack` is added to an `RTCRtpReceiver` which is part of the `RTCPeerConnection`. 
+   * The WebRTC API interface `RTCTrackEvent` represents the `track` event,
+   * which is sent when a new `MediaStreamTrack` is added to an `RTCRtpReceiver` which is part of the `RTCPeerConnection`.
    * The target is the `RTCPeerConnection` object to which the track is being added.
    */
-  const handleRemoteStream = (event: RTCTrackEvent) => {    
+  const handleRemoteStream = (event: RTCTrackEvent) => {
     setRemoteMediaStream(event.streams)
 
     logTrace(`Remote stream received: ${event.track}`)
-
   }
 
   const handleConnectionChange = (event: Event) => {
@@ -177,10 +246,13 @@ const WebRTCAdapter: React.FunctionComponent<Props> = ({
     } as WebRTCAdapterContext
   }, [])
 
-  const mediaStreamConsumer = useMemo(() => ({
-    localMediaStream,
-    remoteMediaStream
-  }), [])
+  const mediaStreamConsumer = useMemo(
+    () => ({
+      localMediaStream,
+      remoteMediaStream
+    }),
+    []
+  )
 
   return (
     <Adapter>
