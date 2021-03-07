@@ -12,6 +12,24 @@ npm install --save react-webrtc-stream
 
 ## Usage
 
+
+#### src/index.js
+
+```js
+  import './index.css'
+  import { WebRTCAdapter } from 'react-webrtc-stream'
+
+  import React from 'react'
+  import ReactDOM from 'react-dom'
+  import App from './App'
+
+  ReactDOM.render((
+    <WebRTCAdapter>
+      <App />
+    </WebRTCAdapter>
+  ), document.getElementById('root'))
+```
+
 ```tsx
   import React, { useEffect, useRef } from 'react'
 
