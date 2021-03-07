@@ -5,15 +5,34 @@ import { logTrace } from 'utils'
 
 
 function useConnectionHandler () {
-  const { connect, localConnection, setDataChannel } = useWebRTCAdapterState()
+  const { connect, localConnection, remoteConnection, setDataChannel } = useWebRTCAdapterState()
 
-  const createChannelContext = () => {
+  const createChannelContext = async () => {
     logTrace('Using STCP Data Channel')
 
     const channel = localConnection.createDataChannel('DataChannel')
 
     setDataChannel(channel)
+
+    localConnection.onicecandidate = handleLocalConnectionCallback
+    remoteConnection.onicecandidate = handleRemoteConnectionCallback
   } 
+  
+  const handleLocalConnectionCallback = async (event: RTCPeerConnectionIceEvent) => {
+    const iceCandidate = event.candidate
+
+    if (iceCandidate) {
+      await remoteConnection.addIceCandidate(iceCandidate)
+    }
+  }
+
+  const handleRemoteConnectionCallback = async (event: RTCPeerConnectionIceEvent) =>  {
+    const iceCandidate = event.candidate
+
+    if (iceCandidate) {
+      await localConnection.addIceCandidate(iceCandidate)
+    }
+  }
 
 
   return {
