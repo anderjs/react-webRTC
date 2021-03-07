@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useRef } from 'react'
 
-import { useConnectionHandler } from 'react-webrtc-stream'
+import { useConnectionHandler, useMediaStream } from 'react-webrtc-stream'
 
 const App = () => {
+  const { localMediaStream, remoteMediaStream } = useMediaStream()
+
   const { connect } = useConnectionHandler()
 
   const audioRef = useRef<HTMLAudioElement>(null)
@@ -17,6 +19,17 @@ const App = () => {
 
     connectHandler()
   }, [connect])
+
+  React.useEffect(() => {
+    if (audioRef.current && videoRef.current) {
+      audioRef.current.srcObject = localMediaStream
+      videoRef.current.srcObject = localMediaStream
+    } 
+  }, [localMediaStream])
+
+  React.useEffect(() => {
+    console.log(remoteMediaStream)
+  }, [remoteMediaStream])
 
   return (
     <>
