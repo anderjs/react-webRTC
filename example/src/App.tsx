@@ -4,7 +4,7 @@ import React, { useRef } from 'react'
 import { useConnectionHandler, useMediaStream } from 'react-webrtc-stream'
 
 const App = () => {
-  const { localMediaStream, remoteMediaStream } = useMediaStream()
+  const { localMediaStream } = useMediaStream()
 
   const { connect } = useConnectionHandler()
 
@@ -26,10 +26,6 @@ const App = () => {
       videoRef.current.srcObject = localMediaStream
     } 
   }, [localMediaStream])
-
-  React.useEffect(() => {
-    console.log(remoteMediaStream)
-  }, [remoteMediaStream])
 
   return (
     <>
