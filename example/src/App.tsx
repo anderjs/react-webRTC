@@ -1,37 +1,25 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useRef, useEffect, useDebugValue } from 'react'
+import React, { useRef } from 'react'
 
-import {
-  RTCPeerConnectionHandler,
-  useLocalPeerConnection,
-  useMediaDevices
-} from 'react-webrtc-stream'
+import { useConnectionHandler } from 'react-webrtc-stream'
 
 const App = () => {
-  const localPeerConnection = useLocalPeerConnection()
-
-  const { localMediaStream, error } = useMediaDevices({
-    audio: true,
-    video: true
-  })
+  const { connect } = useConnectionHandler()
 
   const audioRef = useRef<HTMLAudioElement>(null)
 
   const videoRef = useRef<HTMLVideoElement>(null)
 
-  useDebugValue([localPeerConnection])
-
-  useDebugValue([localMediaStream, error])
-
-  useEffect(() => {
-    if (localMediaStream && videoRef.current) {
-      videoRef.current.srcObject = localMediaStream
+  React.useEffect(() => {
+    async function connectHandler () {
+      await connect({ audio: true, video: true })
     }
-  }, [localMediaStream])
+
+    connectHandler()
+  }, [connect])
 
   return (
     <>
-      <RTCPeerConnectionHandler />
       <video autoPlay ref={videoRef} />
       <audio autoPlay ref={audioRef} />
     </>
