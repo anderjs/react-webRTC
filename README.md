@@ -30,10 +30,10 @@ npm install --save react-webrtc-stream
   ), document.getElementById('root'))
 ```
 
-```tsx
+```js
   import React, { useEffect, useRef } from 'react'
 
-  import { useConnectionHandler } from 'react-webrtc-stream'
+  import { useConnectionHandler, useMediaStream } from 'react-webrtc-stream'
 
   const App = () => {
     const audioRef = useRef(null)
@@ -42,12 +42,21 @@ npm install --save react-webrtc-stream
 
     const { connect } = useConnectionHandler()
 
+    const { localMediaStream } = useMediaStream()
+
     useEffect(() => {
       connect({
         audio: true,
         video: true,
       })
     }, [])
+
+    useEffect(() => {
+      if (audioRef && videoRef) {
+        audioRef.current.srcObject = localMediaStream
+        videoRef.current.srcObject = localMediaStream
+      }
+    }, [localMediaStream])
 
     return (
       <React.Fragment>
